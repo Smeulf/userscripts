@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         mb.unicodechars
 // @namespace    https://github.com/Smeulf/userscripts
-// @version      0.4
+// @version      0.5
 // @description  Ctrl+M on Musicbrainz input text or textarea controls shows context menu for unicode characters. Just click on the menu line to send the character or close.
 // @author       Smeulf
 // @match        http://*.musicbrainz.org/*
@@ -41,7 +41,7 @@ GM_addStyle('\
   Custom context menu. The id is used to print the unicode caracter
 */
 var newHTML = document.createElement ('div');
-newHTML.innerHTML = '<div class="hide" id="mbunicodecharsMenu">\
+newHTML.innerHTML = '<div class="mbunicodecharsMenuHide" id="mbunicodecharsMenu">\
 <div align=\'right\'>[X]</div>\
 <div id="\u2018">\u2018 (Left Single Quotes U+2018)</div>\
 <div id="\u2019">\u2019 (Apostrophe, Right Single Quotes U+2019)</div>\
