@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         mb.unicodechars
 // @namespace    https://github.com/Smeulf/userscripts
-// @version      0.2
+// @version      0.3
 // @description  Ctrl+M, or Ctrl + Right click on Musicbrainz input text or textarea controls shows context menu for unicode characters. Just click on the menu line to send the character or close.
 // @author       Smeulf
 // @match        http://*.musicbrainz.org/*
@@ -22,8 +22,6 @@ GM_addStyle('\
     padding: 2px;\
     display: block;\
     margin: 0;\
-    list-style-type: none;\
-    list-style: none;\
 }\
 \
 .mbunicodecharsMenuHide {\
@@ -44,8 +42,15 @@ GM_addStyle('\
 var newHTML = document.createElement ('div');
 newHTML.innerHTML = '<div class="hide" id="mbunicodecharsMenu">\
 <div align=\'right\'>[X]</div>\
-<div id="\u2019">\u2019 (Apostrophe U+2019)</div>\
-<div id="\u2026">\u2026 (Suspension Points U+2026)</div>\
+<div id="\u2018">\u2018 (Left Single Quotes U+2018)</div>\
+<div id="\u2019">\u2019 (Apostrophe, Right Single Quotes U+2019)</div>\
+<div id="\u2018\u2019">\u2018\u2019 (Left+Right Single Quotes U+2018 & U+2019)</div>\
+<div id="\u201C">\u201C (Left Double Quotes U+201C)</div>\
+<div id="\u201D">\u201D (Right Double Quotes U+201D)</div>\
+<div id="\u201C\u201D">\u201C\u201D (Left+Right Double Quotes U+201C & U+20AD)</div>\
+<div id="\u2026">\u2026 (Horizontal Ellipsis U+2026)</div>\
+<div id="\u2014">\u2014 (Em Dash U+2014)</div>\
+<div id="\u2013">\u2013 (En Dash U+2013)</div>\
 </div>\
 ';
 document.body.appendChild (newHTML);
@@ -91,7 +96,7 @@ function addMenu(event)
         unsafeWindow.selectionStart = event.srcElement.selectionStart;
         unsafeWindow.selectionEnd = event.srcElement.selectionEnd;
         unsafeWindow.lastInputClicked = event.srcElement;
-        setActiveOption(1); //used for mouse enter
+        setActiveOption(2); //used for mouse enter
         var cn = document.getElementById("mbunicodecharsMenu").childNodes;
         cn[0].index = 0;
         cn[0].addEventListener('click',close);
