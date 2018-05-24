@@ -6,6 +6,8 @@ This repository contains custom userscripts:
 Adds a context menu on Musicbrainz input texts and textareas to easily type unicodes characters like ’ (Apostrophe U+2019)
 or … (Suspension Points U+2026). Press Ctrl+M to display the context menu.
 
+  0.6: Prime and double prime
+
   0.5: Fix menu visibility when created to hidden
 
   0.4: Firefox support + Minor fixes. Change menu font.
