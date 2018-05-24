@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         mb.unicodechars
 // @namespace    https://github.com/Smeulf/userscripts
-// @version      0.5
+// @version      0.6
 // @description  Ctrl+M on Musicbrainz input text or textarea controls shows context menu for unicode characters. Just click on the menu line to send the character or close.
 // @author       Smeulf
 // @match        http://*.musicbrainz.org/*
@@ -52,6 +52,8 @@ newHTML.innerHTML = '<div class="mbunicodecharsMenuHide" id="mbunicodecharsMenu"
 <div id="\u2026">\u2026 (Horizontal Ellipsis U+2026)</div>\
 <div id="\u2014">\u2014 (Em Dash U+2014)</div>\
 <div id="\u2013">\u2013 (En Dash U+2013)</div>\
+<div id="\u2032">\u2032 (Prime U+2032)</div>\
+<div id="\u2033">\u2033 (Double Prime U+2033)</div>\
 </div>\
 ';
 document.body.appendChild (newHTML);
