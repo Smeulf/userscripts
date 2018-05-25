@@ -79,48 +79,50 @@ function addListener(obj)
 */
 function addMenu(event)
 {
-    if (
-        (event.toString() == "[object KeyboardEvent]" && event.key == "m" && event.ctrlKey== true)
-    )
+    /*
+    Create custom context menu if not exists
+    */
+    if (!unsafeWindow.mbunicodecharMenuCreated)
     {
-		    /*
-			Create custom context menu if not exists
-			*/
-		if (!unsafeWindow.mbunicodecharMenuCreated)
-		{
-			var newHTML = document.createElement ('div');
-			newHTML.innerHTML = buildMenu();
-			document.body.appendChild (newHTML);
-			unsafeWindow.mbunicodecharMenuCreated = true;
-		}
-		
+        console.log("Create mb.unicodechars menu");
+        var newHTML = document.createElement ('div');
+        newHTML.innerHTML = buildMenu();
+        document.body.appendChild (newHTML);
+        unsafeWindow.mbunicodecharMenuCreated = true;
+    }
+
+    if (event.toString() == "[object KeyboardEvent]" && event.key == "m" && event.ctrlKey== true)
+    {
         event.preventDefault();
 
         unsafeWindow.lastInputClicked = event.target;
         unsafeWindow.selectionStart = event.target.selectionStart;
         unsafeWindow.selectionEnd = event.target.selectionEnd;
 
-        var rect = unsafeWindow.lastInputClicked.getBoundingClientRect();
-        document.getElementById("mbunicodecharsMenu").style.top = (rect.bottom + window.scrollY) + 'px';
-        document.getElementById("mbunicodecharsMenu").style.left = (rect.left + window.scrollX) + 'px';
-        
-        setActiveOption(2); //used for mouse enter
+        var menu = document.getElementById("mbunicodecharsMenu");
 
-        var cn = document.getElementById("mbunicodecharsMenu").childNodes;
+        var rect = unsafeWindow.lastInputClicked.getBoundingClientRect();
+        menu.style.top = (rect.bottom + window.scrollY) + 'px';
+        menu.style.left = (rect.left + window.scrollX) + 'px';
+
+        setActiveOption(2); //used for mouse click
+
+        var cn = menu.childNodes;
         cn[0].index = 0;
         cn[0].addEventListener('click',close);
-        cn[0].addEventListener('mouseenter',menuMouseEnter);
+        cn[0].addEventListener('mouseenter',onMenuMouseEnter);
+
         var i;
         for (i=1;i<cn.length-1;i++)
         {
             cn[i].index = i;
-            cn[i].addEventListener('click', menuOption);
-            cn[i].addEventListener('mouseenter',menuMouseEnter);
-        }
-		
-		cn[cn.length-1].index = cn.length-1;
+            cn[i].addEventListener('click', onMenumenuOptionClic);
+            cn[i].addEventListener('mouseenter',onMenuMouseEnter);
+        };
+
+        cn[cn.length-1].index = cn.length-1;
         cn[i].addEventListener('click', showSettings);
-        cn[cn.length-1].addEventListener('mouseenter',menuMouseEnter);
+        cn[cn.length-1].addEventListener('mouseenter',onMenuMouseEnter);
 
         menu.className = "mbunicodecharsMenuShow";
         unsafeWindow.menuOpened = true;
