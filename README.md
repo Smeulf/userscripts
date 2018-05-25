@@ -8,7 +8,7 @@ or … (Horizontal Ellipsis), Dashes, Quotes, and Primes.  Press Ctrl+M to displ
 
 Tested under Chrome+Tampermonkey, Vivaldi+Violent Monkey (thanks @jesus2099), Firefox+Tampermonkey (thanks @rdswift) and Opera+Tampermonkey** (thanks @Lotheric).
 
-** Under opera, the Ctrl+M shortcut of the script will overrite the Opera default Ctrl+M for tab navigation. Just click out the inputbox to use Opera Ctrl+M tab navigation.
+** Under opera, the Ctrl+M shortcut of the script will overwrite the Opera default Ctrl+M for tab navigation. Just click out the inputbox to use Opera Ctrl+M tab navigation.
 
   0.6: Prime and double prime
 
