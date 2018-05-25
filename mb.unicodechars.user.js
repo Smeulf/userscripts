@@ -16,7 +16,7 @@ GM_addStyle('\
 .mbunicodecharsMenuShow {\
     z-index:1000;\
     position: absolute;\
-    background-color:#C0C0C0;\
+    background-color:#D8D8D8;\
     border: 1px solid blue;\
     padding: 2px;\
     display: block;\
@@ -30,9 +30,28 @@ GM_addStyle('\
 \
 .mbunicodecharsOptionActive {\
     background-color:#FFFF00;\
+    display: table-row;\
 }\
 .mbunicodecharsOptionInactive {\
-    background-color:#C0C0C0;\
+    background-color:#D8D8D8;\
+    display: table-row;\
+}\
+.mbunicodecharsOptionRow {\
+    display: table-row;\
+}\
+.mbunicodecharsOptionLeftColumn {\
+    width:12%;\
+    display:table-cell;\
+}\
+.mbunicodecharsOptionRightColumn {\
+    width:88%;\
+    display:table-cell;\
+}\
+.mbunicodecharsSettingsMenu {\
+    position: absolute;\
+    width: 500px;\
+    height: 300px;\
+    background-color:#D8D8D8;\
 }\
 ');
 
@@ -81,9 +100,6 @@ function addMenu(event)
         unsafeWindow.selectionStart = event.target.selectionStart;
         unsafeWindow.selectionEnd = event.target.selectionEnd;
 
-        document.getElementById("mbunicodecharsMenu").className = "mbunicodecharsMenuShow";
-        unsafeWindow.menuOpened = true;
-
         var rect = unsafeWindow.lastInputClicked.getBoundingClientRect();
         document.getElementById("mbunicodecharsMenu").style.top = (rect.bottom + window.scrollY) + 'px';
         document.getElementById("mbunicodecharsMenu").style.left = (rect.left + window.scrollX) + 'px';
@@ -95,12 +111,19 @@ function addMenu(event)
         cn[0].addEventListener('click',close);
         cn[0].addEventListener('mouseenter',menuMouseEnter);
         var i;
-        for (i=1;i<cn.length;i++)
+        for (i=1;i<cn.length-1;i++)
         {
             cn[i].index = i;
             cn[i].addEventListener('click', menuOption);
             cn[i].addEventListener('mouseenter',menuMouseEnter);
         }
+		
+		cn[cn.length-1].index = cn.length-1;
+        cn[i].addEventListener('click', showSettings);
+        cn[cn.length-1].addEventListener('mouseenter',onMenuMouseEnter);
+
+        menu.className = "mbunicodecharsMenuShow";
+        unsafeWindow.menuOpened = true;
     }
 }
 
@@ -186,6 +209,11 @@ function close(event)
     unsafeWindow.lastInputClicked.setSelectionRange(unsafeWindow.selectionStart, unsafeWindow.selectionEnd);
 }
 
+function showSettings(event)
+{
+	alert("upcoming option");
+}
+
 function buildMenu()
 {
     var menuItems = JSON.parse(localStorage.getItem("mb.unicodechars_items"));
@@ -218,7 +246,7 @@ function buildMenu()
     }
 
     str.push('<div class="mbunicodecharsOptionRow" id="settings"><div class="mbunicodecharsOptionLeftColumn">\
-        </div><div class="mbunicodecharsOptionRightColumn" align="right">settings</div></div>');
+        </div><div class="mbunicodecharsOptionRightColumn" align="right">(upcomming) settings</div></div>');
 
     return '<div class="mbunicodecharsMenuHide" id="mbunicodecharsMenu">'+str.join("")+'</div>';
 }
