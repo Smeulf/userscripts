@@ -120,7 +120,7 @@ function addMenu(event)
 		
 		cn[cn.length-1].index = cn.length-1;
         cn[i].addEventListener('click', showSettings);
-        cn[cn.length-1].addEventListener('mouseenter',onMenuMouseEnter);
+        cn[cn.length-1].addEventListener('mouseenter',menuMouseEnter);
 
         menu.className = "mbunicodecharsMenuShow";
         unsafeWindow.menuOpened = true;
