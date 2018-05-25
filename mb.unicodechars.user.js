@@ -69,7 +69,7 @@ waitForKeyElements("textarea", addListener);
 */
 function addListener(obj)
 {
-    obj[0].addEventListener('keydown', addMenu);
+    obj[0].addEventListener('keydown', displayMenu);
     obj[0].addEventListener('keydown', navigateMenu);
 }
 
@@ -77,7 +77,7 @@ function addListener(obj)
 /*
   Event callback. Displays the menu and set unsafewindow variables for persistance
 */
-function addMenu(event)
+function displayMenu(event)
 {
     /*
     Create custom context menu if not exists
@@ -116,7 +116,7 @@ function addMenu(event)
         for (i=1;i<cn.length-1;i++)
         {
             cn[i].index = i;
-            cn[i].addEventListener('click', onMenumenuOptionClic);
+            cn[i].addEventListener('click', onMenuOptionClic);
             cn[i].addEventListener('mouseenter',onMenuMouseEnter);
         };
 
@@ -169,7 +169,7 @@ function navigateMenu(event)
     }
 }
 
-function menuMouseEnter(event)
+function onMenuMouseEnter(event)
 {
     setActiveOption(event.target.index);
 }
@@ -189,10 +189,17 @@ function setActiveOption(index)
 /*
   When a menu option is clicked, insert the caracter in the string and close the menu
 */
-function menuOption(event)
+function onMenuOptionClic(event)
 {
+    var id = event.target.id;
+    //Most of the time, we click on the children div, so we need the parent id
+    if (id == "")
+    {
+        id = event.target.parentElement.id;
+    }
+
     unsafeWindow.lastInputClicked.value = unsafeWindow.lastInputClicked.value.substr(0, unsafeWindow.selectionStart)
-        + event.target.id
+        + id
         + unsafeWindow.lastInputClicked.value.substr(unsafeWindow.selectionEnd);
     var cn = document.getElementById("mbunicodecharsMenu").childNodes;
     cn[unsafeWindow.activeMenuOption].className = "mbunicodecharsOptionInactive";
