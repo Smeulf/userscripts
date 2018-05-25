@@ -1,11 +1,10 @@
 // ==UserScript==
 // @name         mb.unicodechars
 // @namespace    https://github.com/Smeulf/userscripts
-// @version      0.6
-// @description  Ctrl+M on Musicbrainz input text or textarea controls shows context menu for unicode characters. Just click on the menu line to send the character or close.
+// @version      0.7
+// @description  Ctrl+M on MusicBrainz input text or textarea controls shows context menu for unicode characters. Just click on the menu line to send the character or close with Escape key.
 // @author       Smeulf
-// @match        http://*.musicbrainz.org/*
-// @match        https://*.musicbrainz.org/*
+// @match        *://*.musicbrainz.org/*
 // @grant        GM_addStyle
 // ==/UserScript==
 
@@ -42,7 +41,7 @@ GM_addStyle('\
 */
 var newHTML = document.createElement ('div');
 newHTML.innerHTML = '<div class="mbunicodecharsMenuHide" id="mbunicodecharsMenu">\
-<div align=\'right\'>[X]</div>\
+<div align=\'right\' title=\'press Escape to close\'>[X]</div>\
 <div id="\u2018">\u2018 (Left Single Quotes U+2018)</div>\
 <div id="\u2019">\u2019 (Apostrophe, Right Single Quotes U+2019)</div>\
 <div id="\u2018\u2019">\u2018\u2019 (Left+Right Single Quotes U+2018 & U+2019)</div>\
@@ -117,9 +116,10 @@ function addMenu(event)
 
 function navigateMenu(event)
 {
-    if (unsafeWindow.menuOpened == true && (event.key == "ArrowDown" || event.key == "ArrowUp" || event.key == "Enter"))
+    if (unsafeWindow.menuOpened == true && event.key.match(/ArrowDown|ArrowUp|Enter|Escape/))
     {
         event.preventDefault();
+        event.cancelBubble = true;
         console.log(event);
         var cn = document.getElementById("mbunicodecharsMenu").childNodes;
 
@@ -146,6 +146,10 @@ function navigateMenu(event)
             }
         }
 
+        if (event.key == "Escape")
+        {
+            close();
+        }
 
     }
 }
