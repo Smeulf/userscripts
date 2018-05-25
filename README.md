@@ -4,7 +4,11 @@ This repository contains custom userscripts:
 
 - mb.unicodechars: 
 Adds a context menu on Musicbrainz input texts and textareas to easily type unicodes characters like ’ (Apostrophe U+2019)
-or … (Suspension Points U+2026). Press Ctrl+M to display the context menu.
+or … (Horizontal Ellipsis), Dashes, Quotes, and Primes.  Press Ctrl+M to display the context menu.
+
+Tested under Chrome+Tampermonkey, Vivaldi+Violent Monkey (thanks @jesus2099), Firefox+Tampermonkey (thanks @rdswift) and Opera+Tampermonkey** (thanks @Lotheric).
+
+** Under opera, the Ctrl+M shortcut of the script will overrite the Opera default Ctrl+M for tab navigation. Just click out the inputbox to use Opera Ctrl+M tab navigation.
 
   0.6: Prime and double prime
 
