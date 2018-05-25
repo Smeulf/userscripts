@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         mb.unicodechars
 // @namespace    https://github.com/Smeulf/userscripts
-// @version      0.7
+// @version      0.7a
 // @description  Ctrl+M on MusicBrainz input text or textarea controls shows context menu for unicode characters. Just click on the menu line to send the character or close with Escape key.
 // @author       Smeulf
 // @match        *://*.musicbrainz.org/*
@@ -193,8 +193,10 @@ function close(event)
     document.getElementById("mbunicodecharsMenu").className = "mbunicodecharsMenuHide";
     unsafeWindow.menuOpened = false;
     unsafeWindow.lastInputClicked.focus();
-    unsafeWindow.lastInputClicked.setSelectionRange(unsafeWindow.selectionStart, unsafeWindow.selectionStart);
+    unsafeWindow.lastInputClicked.setSelectionRange(unsafeWindow.selectionStart, unsafeWindow.selectionEnd);
 }
+
+
 
 
 /*
