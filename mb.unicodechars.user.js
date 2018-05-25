@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         mb.unicodechars
 // @namespace    https://github.com/Smeulf/userscripts
-// @version      0.7a
+// @version      0.7b
 // @description  Ctrl+M on MusicBrainz input text or textarea controls shows context menu for unicode characters. Just click on the menu line to send the character or close with Escape key.
 // @author       Smeulf
 // @match        *://*.musicbrainz.org/*
@@ -36,27 +36,6 @@ GM_addStyle('\
 }\
 ');
 
-/*
-  Custom context menu. The id is used to print the unicode caracter
-*/
-var newHTML = document.createElement ('div');
-newHTML.innerHTML = '<div class="mbunicodecharsMenuHide" id="mbunicodecharsMenu">\
-<div align=\'right\' title=\'press Escape to close\'>[X]</div>\
-<div id="\u2018">\u2018 (Left Single Quotes U+2018)</div>\
-<div id="\u2019">\u2019 (Apostrophe, Right Single Quotes U+2019)</div>\
-<div id="\u2018\u2019">\u2018\u2019 (Left+Right Single Quotes U+2018 & U+2019)</div>\
-<div id="\u201C">\u201C (Left Double Quotes U+201C)</div>\
-<div id="\u201D">\u201D (Right Double Quotes U+201D)</div>\
-<div id="\u201C\u201D">\u201C\u201D (Left+Right Double Quotes U+201C & U+201D)</div>\
-<div id="\u2026">\u2026 (Horizontal Ellipsis U+2026)</div>\
-<div id="\u2014">\u2014 (Em Dash U+2014)</div>\
-<div id="\u2013">\u2013 (En Dash U+2013)</div>\
-<div id="\u2032">\u2032 (Prime U+2032)</div>\
-<div id="\u2033">\u2033 (Double Prime U+2033)</div>\
-</div>\
-';
-document.body.appendChild (newHTML);
-
 
 /*
   Main entry point : will wait for any elements with where type is text ( [type='text'] ), and repeat every 500ms to scan the page for changes
@@ -85,6 +64,17 @@ function addMenu(event)
         (event.toString() == "[object KeyboardEvent]" && event.key == "m" && event.ctrlKey== true)
     )
     {
+		    /*
+			Create custom context menu if not exists
+			*/
+		if (!unsafeWindow.mbunicodecharMenuCreated)
+		{
+			var newHTML = document.createElement ('div');
+			newHTML.innerHTML = buildMenu();
+			document.body.appendChild (newHTML);
+			unsafeWindow.mbunicodecharMenuCreated = true;
+		}
+		
         event.preventDefault();
 
         unsafeWindow.lastInputClicked = event.target;
@@ -196,8 +186,42 @@ function close(event)
     unsafeWindow.lastInputClicked.setSelectionRange(unsafeWindow.selectionStart, unsafeWindow.selectionEnd);
 }
 
+function buildMenu()
+{
+    var menuItems = JSON.parse(localStorage.getItem("mb.unicodechars_items"));
+    if (menuItems === null)
+    {
+        menuItems = [
+            ["\u2018", "Left Single Quotes"],
+            ["\u2019", "Apostrophe, Right Single Quotes"],
+            ["\u2018\u2019", "Left+Right Single Quotes"],
+            ["\u201C", "Left Double Quotes"],
+            ["\u201D", "Right Double Quotes"],
+            ["\u201C\u201D", "Left+Right Double Quotes"],
+            ["\u2026", "Horizontal Ellipsis"],
+            ["\u2014", "Em Dash"],
+            ["\u2013", "En Dash"],
+            ["\u2032", "Prime"],
+            ["\u2033", "Double Prime"]
+        ];
+        localStorage.setItem("mb.unicodechars_items",JSON.stringify(menuItems));
+    }
 
+    var str = [];
+    str.push('<div class="mbunicodecharsOptionRow" id"closeOption"><div class="mbunicodecharsOptionLeftColumn">\
+        </div><div class="mbunicodecharsOptionRightColumn" align="right"><button class="nobutton icon remove-item" title="CLose" type="button"></button></div></div>'); //close option, mandatory
 
+    for (var i=0; i<menuItems.length; i++)
+    {
+     str.push('<div id="'+menuItems[i][0]+'" class="mbunicodecharsOptionRow"><div class="mbunicodecharsOptionLeftColumn">'+menuItems[i][0]+
+              '</div><div class="mbunicodecharsOptionRightColumn">'+menuItems[i][1]+'</div></div>');
+    }
+
+    str.push('<div class="mbunicodecharsOptionRow" id="settings"><div class="mbunicodecharsOptionLeftColumn">\
+        </div><div class="mbunicodecharsOptionRightColumn" align="right">settings</div></div>');
+
+    return '<div class="mbunicodecharsMenuHide" id="mbunicodecharsMenu">'+str.join("")+'</div>';
+}
 
 /*
 Function from https://gist.githubusercontent.com/raw/2625891/waitForKeyElements.js
