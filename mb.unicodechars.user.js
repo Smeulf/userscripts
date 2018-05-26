@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         mb.unicodechars
 // @namespace    https://github.com/Smeulf/userscripts
-// @version      0.8.1
+// @version      0.9.0
 // @description  Ctrl+M on MusicBrainz input text or textarea controls shows context menu for unicode characters. Just click on the menu line to send the character or close with Escape key.
 // @author       Smeulf
 // @match        *://*.musicbrainz.org/*
@@ -86,14 +86,10 @@ function displayMenu(event)
         Create custom context menu if not exists
         */
 
-        unsafeWindow.activeMenuOption = 1;
-
         if (!unsafeWindow.mbunicodecharMenuCreated)
         {
             console.log("Create mb.unicodechars menu");
-            var newHTML = document.createElement ('div');
-            newHTML.innerHTML = buildMenu();
-            document.body.appendChild (newHTML);
+            buildMenu();
             unsafeWindow.mbunicodecharMenuCreated = true;
         }
 
@@ -109,7 +105,7 @@ function displayMenu(event)
         menu.style.top = (rect.bottom + window.scrollY) + 'px';
         menu.style.left = (rect.left + window.scrollX) + 'px';
 
-        setActiveOption(unsafeWindow.activeMenuOption); //used for mouse click
+        setActiveOption(menu.defaultOption); //used for mouse click
 
         var cn = menu.childNodes;
         cn[0].index = 0;
@@ -139,28 +135,29 @@ function navigateMenu(event)
     {
         event.preventDefault();
         event.cancelBubble = true;
-        var cn = document.getElementById("mbunicodecharsMenu").childNodes;
+        var menu = document.getElementById("mbunicodecharsMenu");
+        var cn = menu.childNodes;
 
         if (event.key == "Enter")
         {
             var ev = document.createEvent('HTMLEvents');
             ev.initEvent('click', true, false);
-            cn[unsafeWindow.activeMenuOption].dispatchEvent(ev);
+            cn[menu.activeOption].dispatchEvent(ev);
         }
 
         if (event.key == "ArrowDown")
         {
-            if (cn.length -1 > unsafeWindow.activeMenuOption)
+            if (cn.length -1 > menu.activeOption)
             {
-                setActiveOption(unsafeWindow.activeMenuOption + 1);
+                setActiveOption(menu.activeOption + 1);
             }
         }
 
         if (event.key == "ArrowUp")
         {
-            if (unsafeWindow.activeMenuOption > 0)
+            if (menu.activeOption > 0)
             {
-                setActiveOption(unsafeWindow.activeMenuOption - 1);
+                setActiveOption(menu.activeOption - 1);
             }
         }
 
@@ -179,13 +176,14 @@ function onMenuMouseEnter(event)
 
 function setActiveOption(index)
 {
-    var cn = document.getElementById("mbunicodecharsMenu").childNodes;
-    if (unsafeWindow.activeMenuOption !== undefined)
+    var menu = document.getElementById("mbunicodecharsMenu");
+    var cn = menu.childNodes;
+    if (menu.activeOption !== undefined)
     {
-        cn[unsafeWindow.activeMenuOption].className = "mbunicodecharsOptionInactive";
+        cn[menu.activeOption].className = "mbunicodecharsOptionInactive";
     }
-    unsafeWindow.activeMenuOption = index;
-     cn[unsafeWindow.activeMenuOption].className = "mbunicodecharsOptionActive";
+    menu.activeOption = index;
+     cn[menu.activeOption].className = "mbunicodecharsOptionActive";
 }
 
 
@@ -204,8 +202,9 @@ function onMenuOptionClic(event)
     unsafeWindow.lastInputClicked.value = unsafeWindow.lastInputClicked.value.substr(0, unsafeWindow.selectionStart)
         + id
         + unsafeWindow.lastInputClicked.value.substr(unsafeWindow.selectionEnd);
-    var cn = document.getElementById("mbunicodecharsMenu").childNodes;
-    cn[unsafeWindow.activeMenuOption].className = "mbunicodecharsOptionInactive";
+    var menu = document.getElementById("mbunicodecharsMenu");
+    var cn = menu.childNodes;
+    cn[menu.activeOption].className = "mbunicodecharsOptionInactive";
     document.getElementById("mbunicodecharsMenu").className = "mbunicodecharsMenuHide";
 
     unsafeWindow.menuOpened = false;
@@ -233,6 +232,7 @@ function buildMenu()
     var menuItems = languagePacks[0].menuItems;
 
     var str = [];
+    var dft = 1;
     str.push('<div class="mbunicodecharsOptionRow" id"closeOption"><div class="mbunicodecharsOptionLeftColumn">\
         </div><div class="mbunicodecharsOptionRightColumn" align="right"><button class="nobutton icon remove-item" title="CLose" type="button"></button></div></div>'); //close option, mandatory
 
@@ -245,14 +245,17 @@ function buildMenu()
         }
         if (menuItems[i].default)
         {
-            unsafeWindow.activeMenuOption = i+1;
+            dft = i+1;
         }
     }
 
     str.push('<div class="mbunicodecharsOptionRow" id="settings"><div class="mbunicodecharsOptionLeftColumn">\
         </div><div class="mbunicodecharsOptionRightColumn" align="right">(upcoming) settings</div></div>');
 
-    return '<div class="mbunicodecharsMenuHide" id="mbunicodecharsMenu">'+str.join("")+'</div>';
+    var newHTML = document.createElement('div');
+    newHTML.innerHTML = '<div class="mbunicodecharsMenuHide" id="mbunicodecharsMenu">'+str.join("")+'</div>';
+    document.body.appendChild(newHTML);
+    document.getElementById("mbunicodecharsMenu").defaultOption = dft;
 }
 
 
@@ -265,7 +268,7 @@ function updateLanguagePack(source)
     if (source === undefined)
     {
         //Update from local worldwide punctuation
-        newLanguagePack = {"code":"XW", "name": "Worldwide punctuation", "version": "0.8.1", "menuItems":[]};
+        newLanguagePack = {"code":"XW", "name": "Worldwide punctuation", "version": "0.9.0", "menuItems":[]};
 
         if (languagePacks !== null)
         {
@@ -288,8 +291,9 @@ function updateLanguagePack(source)
             {"code": "\u201C\u201D", "name": "Left+Right Double Quotes", "offset":1, "enabled":true, "default":false},
             {"code": "\u2026", "name": "Horizontal Ellipsis", "offset":1, "enabled":true, "default":false},
             {"code": "\u2010", "name": "Hyphen", "offset":1, "enabled":true, "default":false},
-            {"code": "\u2014", "name": "Em Dash", "offset":1, "enabled":true, "default":false},
+            {"code": "\u2212", "name": "Minus", "offset":1, "enabled":true, "default":false},
             {"code": "\u2013", "name": "En Dash", "offset":1, "enabled":true, "default":false},
+            {"code": "\u2014", "name": "Em Dash", "offset":1, "enabled":true, "default":false},
             {"code": "\u2032", "name": "Prime", "offset":1, "enabled":true, "default":false},
             {"code": "\u2033", "name": "Double Prime", "offset":1, "enabled":true, "default":false}
         ];
@@ -309,6 +313,11 @@ function updateLanguagePack(source)
             {
                 newLanguagePack.menuItems[i].enabled = f.enabled;
                 newLanguagePack.menuItems[i].default = f.default;
+            }
+            else
+            {
+                //TODO: This must be a user defined item, must be added to the new items
+                //Not a problem for now as user items are not implemented
             }
         }
     }

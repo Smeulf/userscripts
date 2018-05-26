@@ -10,6 +10,8 @@ Tested under Chrome+Tampermonkey, Vivaldi+Violent Monkey (thanks @jesus2099), Fi
 
 ** Under opera, the Ctrl+M shortcut of the script will overwrite the Opera default Ctrl+M for tab navigation. Just click out the inputbox to use Opera Ctrl+M tab navigation.
 
+  0.9.0: Hyphen and Minus signs added. Major rework of the code for future customization option
+  
   0.8: Menu beautification, now loads only when called, plus minor fixes
   
   0.7: Close menu with Escame key
