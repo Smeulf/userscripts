@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         mb.unicodechars
 // @namespace    https://github.com/Smeulf/userscripts
-// @version      0.8
+// @version      0.8.1
 // @description  Ctrl+M on MusicBrainz input text or textarea controls shows context menu for unicode characters. Just click on the menu line to send the character or close with Escape key.
 // @author       Smeulf
 // @match        *://*.musicbrainz.org/*
@@ -79,20 +79,24 @@ function addListener(obj)
 */
 function displayMenu(event)
 {
-    /*
-    Create custom context menu if not exists
-    */
-    if (!unsafeWindow.mbunicodecharMenuCreated)
-    {
-        console.log("Create mb.unicodechars menu");
-        var newHTML = document.createElement ('div');
-        newHTML.innerHTML = buildMenu();
-        document.body.appendChild (newHTML);
-        unsafeWindow.mbunicodecharMenuCreated = true;
-    }
 
     if (event.toString() == "[object KeyboardEvent]" && event.key == "m" && event.ctrlKey== true)
     {
+        /*
+        Create custom context menu if not exists
+        */
+
+        unsafeWindow.activeMenuOption = 1;
+
+        if (!unsafeWindow.mbunicodecharMenuCreated)
+        {
+            console.log("Create mb.unicodechars menu");
+            var newHTML = document.createElement ('div');
+            newHTML.innerHTML = buildMenu();
+            document.body.appendChild (newHTML);
+            unsafeWindow.mbunicodecharMenuCreated = true;
+        }
+
         event.preventDefault();
 
         unsafeWindow.lastInputClicked = event.target;
@@ -105,7 +109,7 @@ function displayMenu(event)
         menu.style.top = (rect.bottom + window.scrollY) + 'px';
         menu.style.left = (rect.left + window.scrollX) + 'px';
 
-        setActiveOption(2); //used for mouse click
+        setActiveOption(unsafeWindow.activeMenuOption); //used for mouse click
 
         var cn = menu.childNodes;
         cn[0].index = 0;
@@ -135,7 +139,6 @@ function navigateMenu(event)
     {
         event.preventDefault();
         event.cancelBubble = true;
-        console.log(event);
         var cn = document.getElementById("mbunicodecharsMenu").childNodes;
 
         if (event.key == "Enter")
@@ -225,24 +228,9 @@ function showSettings(event)
 
 function buildMenu()
 {
-    var menuItems = JSON.parse(localStorage.getItem("mb.unicodechars_items"));
-    if (menuItems === null)
-    {
-        menuItems = [
-            ["\u2018", "Left Single Quotes"],
-            ["\u2019", "Apostrophe, Right Single Quotes"],
-            ["\u2018\u2019", "Left+Right Single Quotes"],
-            ["\u201C", "Left Double Quotes"],
-            ["\u201D", "Right Double Quotes"],
-            ["\u201C\u201D", "Left+Right Double Quotes"],
-            ["\u2026", "Horizontal Ellipsis"],
-            ["\u2014", "Em Dash"],
-            ["\u2013", "En Dash"],
-            ["\u2032", "Prime"],
-            ["\u2033", "Double Prime"]
-        ];
-        localStorage.setItem("mb.unicodechars_items",JSON.stringify(menuItems));
-    }
+    updateLanguagePack();
+    var languagePacks = JSON.parse(localStorage.getItem("mb.unicodechars_languagePacks"));
+    var menuItems = languagePacks[0].menuItems;
 
     var str = [];
     str.push('<div class="mbunicodecharsOptionRow" id"closeOption"><div class="mbunicodecharsOptionLeftColumn">\
@@ -250,14 +238,92 @@ function buildMenu()
 
     for (var i=0; i<menuItems.length; i++)
     {
-     str.push('<div id="'+menuItems[i][0]+'" class="mbunicodecharsOptionRow"><div class="mbunicodecharsOptionLeftColumn">'+menuItems[i][0]+
-              '</div><div class="mbunicodecharsOptionRightColumn">'+menuItems[i][1]+'</div></div>');
+        if (menuItems[i].enabled)
+        {
+            str.push('<div id="'+menuItems[i].code+'" class="mbunicodecharsOptionRow"><div class="mbunicodecharsOptionLeftColumn">'+menuItems[i].code+
+                     '</div><div class="mbunicodecharsOptionRightColumn">'+menuItems[i].name+'</div></div>');
+        }
+        if (menuItems[i].default)
+        {
+            unsafeWindow.activeMenuOption = i+1;
+        }
     }
 
     str.push('<div class="mbunicodecharsOptionRow" id="settings"><div class="mbunicodecharsOptionLeftColumn">\
-        </div><div class="mbunicodecharsOptionRightColumn" align="right">(upcomming) settings</div></div>');
+        </div><div class="mbunicodecharsOptionRightColumn" align="right">(upcoming) settings</div></div>');
 
     return '<div class="mbunicodecharsMenuHide" id="mbunicodecharsMenu">'+str.join("")+'</div>';
+}
+
+
+function updateLanguagePack(source)
+{
+    var languagePacks = JSON.parse(localStorage.getItem("mb.unicodechars_languagePacks"));
+    var newLanguagePack;
+    var currentLanguagePack;
+
+    if (source === undefined)
+    {
+        //Update from local worldwide punctuation
+        newLanguagePack = {"code":"XW", "name": "Worldwide punctuation", "version": "0.8.1", "menuItems":[]};
+
+        if (languagePacks !== null)
+        {
+            currentLanguagePack = languagePacks.find(l => l.code == newLanguagePack.code && l.name == newLanguagePack.name);
+            if (currentLanguagePack !== undefined && currentLanguagePack.version == newLanguagePack.version)
+            {
+                console.log("mb.unicodechars: same version found, no need to update");
+                return;
+            }
+        }
+
+        console.log("mb.unicodechars: update requiried to version "+newLanguagePack.version);
+
+        newLanguagePack.menuItems = [
+            {"code": "\u2018", "name": "Left Single Quote", "offset":1, "enabled":true, "default":false},
+            {"code": "\u2019", "name": "Apostrophe, Right Single Quote", "offset":1, "enabled":true, "default":true},
+            {"code": "\u2018\u2019", "name": "Left+Right Single Quotes", "offset":1, "enabled":true, "default":false},
+            {"code": "\u201C", "name": "Left Double Quotes", "offset":1, "enabled":true, "default":false},
+            {"code": "\u201D", "name": "Right Double Quotes", "offset":1, "enabled":true, "default":false},
+            {"code": "\u201C\u201D", "name": "Left+Right Double Quotes", "offset":1, "enabled":true, "default":false},
+            {"code": "\u2026", "name": "Horizontal Ellipsis", "offset":1, "enabled":true, "default":false},
+            {"code": "\u2010", "name": "Hyphen", "offset":1, "enabled":true, "default":false},
+            {"code": "\u2014", "name": "Em Dash", "offset":1, "enabled":true, "default":false},
+            {"code": "\u2013", "name": "En Dash", "offset":1, "enabled":true, "default":false},
+            {"code": "\u2032", "name": "Prime", "offset":1, "enabled":true, "default":false},
+            {"code": "\u2033", "name": "Double Prime", "offset":1, "enabled":true, "default":false}
+        ];
+    }
+    else
+    {
+        //TODO: load language chars from github
+    }
+
+    //now update the new language pack:
+    if (currentLanguagePack !== undefined)
+    {
+        for (var i=0;i<newLanguagePack.menuItems.length; i++)
+        {
+            var f = currentLanguagePack.menuItems.find(item => item.code == newLanguagePack.menuItems[i].code);
+            if (f !== undefined )
+            {
+                newLanguagePack.menuItems[i].enabled = f.enabled;
+                newLanguagePack.menuItems[i].default = f.default;
+            }
+        }
+    }
+
+    if (languagePacks === null)
+    {
+        languagePacks = [];
+        languagePacks.push(newLanguagePack);
+    }
+    else
+    {
+        currentLanguagePack.version = newLanguagePack.version;
+        currentLanguagePack.menuItems = newLanguagePack.menuItems;
+    }
+    localStorage.setItem("mb.unicodechars_languagePacks",JSON.stringify(languagePacks));
 }
 
 /*
