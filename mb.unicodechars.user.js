@@ -292,6 +292,7 @@ function onMenuOptionClic(event)
         element = event.target.parentElement;
     }
     var code = element.code;
+    var offset = element.offset;
 
     var selectionStart = unsafeWindow.lastInputClicked.selectionStart;
     var selectionEnd = unsafeWindow.lastInputClicked.selectionEnd;
@@ -332,7 +333,8 @@ function onMenuOptionClic(event)
 
     unsafeWindow.menuOpened = false;
     unsafeWindow.lastInputClicked.focus();
-    unsafeWindow.lastInputClicked.setSelectionRange(selectionStart+1, selectionStart+1);
+    unsafeWindow.lastInputClicked.setSelectionRange(selectionStart+offset+(element.isCombiningChar ? code.length-1:0),
+                                                    selectionStart+offset+(element.isCombiningChar ? code.length-1:0));
 }
 
 function onFlagClic(event)
@@ -362,12 +364,12 @@ function showSettings(event)
 function buildMenu()
 {
     updateLanguagePack();
-    if (languagePacks === null)
-    {
+    //if (languagePacks === null)
+    //{
         updateLanguagePack("XW_Diacritics");
         updateLanguagePack("XE_ExtendedLatin");
         updateLanguagePack("GR_Greek");
-    }
+    //}
     
     var mainPanel = document.createElement('div');
     mainPanel.id = "mbunicodecharsMainPanel";
@@ -441,6 +443,7 @@ function buildMenu()
 
                 item.code = menuItems[j].code;
                 item.name = menuItems[j].name;
+                item.offset = menuItems[j].offset;
                 item.isCombiningChar = menuItems[j].code.isCombiningCharacter();
 
                 if (menuItems[j].default)
