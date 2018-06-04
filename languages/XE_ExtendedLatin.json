@@ -1,7 +1,7 @@
 {
 	"code":"XE",
 	"name":"Extended Latin",
-	"version":"0.0.2",
+	"version":"0.0.3",
 	"menuItems":[
 		{"code":"\u00C6", "name":"Latin capital letter ae", "offset":1, "enabled":true, "default":false},
 		{"code":"\u00E6", "name":"Latin small letter ae", "offset":1, "enabled":true, "default":false},
@@ -32,7 +32,7 @@
 		{"code":"\uA7B7", "name":"Latin small letter omega", "offset":1, "enabled":true, "default":false},
 		{"code":"\u01B1", "name":"Latin capital letter upsilon", "offset":1, "enabled":true, "default":false},
 		{"code":"\u028A", "name":"Latin small letter upsilon", "offset":1, "enabled":true, "default":false},
-		{"code":"\u004B\u02BC", "name":"Latin capital letter kra", "offset":1, "enabled":true, "default":false},
+		{"code":"\u004B\u02BC", "name":"Latin capital letter kra", "offset":2, "enabled":true, "default":false},
 		{"code":"\u0138", "name":"Latin small letter kra", "offset":1, "enabled":true, "default":false},
 		{"code":"\u1E9E", "name":"Latin capital letter sharp s", "offset":1, "enabled":true, "default":false},
 		{"code":"\u00DF", "name":"Latin small letter sharp s", "offset":1, "enabled":true, "default":false},
