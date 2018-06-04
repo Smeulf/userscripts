@@ -14,7 +14,7 @@ Tested under Chrome+Tampermonkey, Vivaldi+Violent Monkey (thanks @jesus2099), Fi
   
   0.8: Menu beautification, now loads only when called, plus minor fixes
   
-  0.7: Close menu with Escame key
+  0.7: Close menu with Escape key
 
   0.6: Prime and double prime
 
