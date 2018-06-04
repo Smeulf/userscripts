@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         mb.unicodechars
 // @namespace    https://github.com/Smeulf/userscripts
-// @version      0.9.1
+// @version      0.9.2
 // @description  Ctrl+M on MusicBrainz input text or textarea controls shows context menu for unicode characters. Just click on the menu line to send the character or close with Escape key.
 // @author       Smeulf
 // @match        *://*.musicbrainz.org/*
@@ -14,11 +14,11 @@
 */
 GM_addStyle('\
 .mbunicodecharsMenuShow {\
-    z-index:1000;\
+    z-index: 1000;\
     position: absolute;\
-    background-color:#E8E8E8;\
+    background-color: #E8E8E8;\
     display: flex;\
-	flex-direction:row;\
+	flex-direction: row;\
     margin: 0px;\
     font-family: sans-serif;\
 }\
@@ -26,40 +26,43 @@ GM_addStyle('\
     display: none;\
 }\
 .mbunicodecharsLanguageActive {\
-    display:flex;\
-    background-color:#C8C8C8;\
+    display: flex;\
+    flex-wrap: wrap;\
+    background-color: #C8C8C8;\
 }\
 .mbunicodecharsOptionInactive {\
-    background-color:none;\
+    background-color: none;\
 }\
 .mbunicodecharsOptionActive {\
-    background-color:#FFFF00;\
-}\
-.mbunicodecharsOptionCharActive {\
-    background-color:#FFFF00;\
-    max-width:24px;\
-    max-height:24px;\
+    background-color: #FFFF00;\
 }\
 .mbunicodecharsOptionChar {\
-    padding:3px;\
-    min-width:16px;\
-    min-height:16px;\
-    max-width:16px;\
-    max-height:16px;\
-    background-color:none;\
+    padding: 3px;\
+    min-width: 16px;\
+    min-height: 16px;\
+    max-width: 16px;\
+    max-height: 16px;\
+    background-color: none;\
+    border: 1px solid #E8E8E8;\
+    font-size: 16px;\
+    text-align: center;\
 }\
-.mbunicodecharsOptionRightColumn {\
+.mbunicodecharsOptionOther {\
     white-space: nowrap;\
-	margin:2px;\
+	margin: 2px;\
+    text-align: right;\
 }\
 .mbunicodecharsSettingsMenu {\
     position: absolute;\
     width: 500px;\
     height: 300px;\
-    background-color:#D8D8D8;\
+    background-color: #D8D8D8;\
+}\
+.mbunicodecharsLanguagesPanel{\
+    border: 2px solid blue;\
 }\
 .mbunicodecharsFlagsPanel {\
-    background-color : none;\
+    background-color: none;\
     border: none;\
     display: flex;\
     flex-direction: column;\
@@ -73,6 +76,21 @@ GM_addStyle('\
     background-color: #C8C8C8;\
     padding: 6px;\
     border: 2px solid blue;\
+}\
+.mbunicodecharsShowBox{\
+    display: flex;\
+    align-items: center;\
+}\
+.mbunicodecharsShowBoxLeft{\
+    font-size: 40px;\
+    min-width: 40px;\
+    min-height: 40px;\
+    text-align: center;\
+    padding:10px;\
+}\
+.mbunicodecharsShowBowRight{\
+    align-self: flex-start;\
+    margin: 2px;\
 }\
 ');
 
@@ -225,23 +243,14 @@ function setActiveOption(index)
     {
         cn[menu.activeOption].className = "mbunicodecharsOptionInactive";
     }
-
     menu.activeOption = index;
-
-    if (index > 0 && index < cn.length-1)
-    {
-        cn[menu.activeOption].className = "mbunicodecharsOptionCharActive";
-    }
-    else
-    {
-        cn[menu.activeOption].className = "mbunicodecharsOptionActive";
-    }
+    cn[menu.activeOption].className = "mbunicodecharsOptionActive";
     cn[menu.activeOption].focus();
 
     if (index > 0 && index < cn.length-1)
     {
-        cn[1].childNodes[0].textContent = cn[menu.activeOption].childNodes[0].textContent;
-        cn[1].childNodes[1].textContent = cn[menu.activeOption].name;;
+        cn[1].childNodes[0].textContent = (cn[menu.activeOption].isCombiningChar ? "\u25CC" : "") + cn[menu.activeOption].childNodes[0].textContent;
+        cn[1].childNodes[1].textContent = cn[menu.activeOption].name;
     }
     else
     {
@@ -263,7 +272,7 @@ function setActiveLanguage(index)
     languagesPanel.activeLanguage = index;
     setActiveOption(languagesPanel.childNodes[index].defaultOption);
 
-    if (flagsPanel.style.justifyContent == "flex-end")
+    if (flagsPanel.style.justifyContent == "flex-end") //flags are shown
     {
         var rect = unsafeWindow.lastInputClicked.getBoundingClientRect();
         flagsPanel.parentElement.style.top = (rect.top + window.scrollY - $(flagsPanel.parentElement).height())+'px';
@@ -275,17 +284,19 @@ function setActiveLanguage(index)
 */
 function onMenuOptionClic(event)
 {
-    var code = event.target.code;
+    
+    var element = event.target;
     //Most of the time, we click on the children div, so we need the parent element code
-    if (code === undefined)
+    if (element.code === undefined)
     {
-        code = event.target.parentElement.code;
+        element = event.target.parentElement;
     }
+    var code = element.code;
 
     var selectionStart = unsafeWindow.lastInputClicked.selectionStart;
     var selectionEnd = unsafeWindow.lastInputClicked.selectionEnd;
 
-    if ($('div[class="mbunicodecharsLanguageActive"]')[0].id == "XW_Diacritics")
+    if (element.isCombiningChar)
     {
         if (selectionEnd - selectionStart != 1)
         {
@@ -293,10 +304,10 @@ function onMenuOptionClic(event)
             return;
         }
 
-        console.log("diacritics found");
-        console.log(unsafeWindow.lastInputClicked.value.substring(selectionStart, selectionEnd).toUnicode());
+        //console.log("combining char found");
+        //console.log(unsafeWindow.lastInputClicked.value.substring(selectionStart, selectionEnd).toUnicode());
         code = unsafeWindow.lastInputClicked.value.substring(selectionStart, selectionEnd)+code;
-        console.log(code.toUnicode());
+        //console.log(code.toUnicode());
         code = code.normalize('NFC');
         if (code.length > 1)
         {
@@ -305,8 +316,8 @@ function onMenuOptionClic(event)
                 return;
             }
         }
-        console.log(code);
-        console.log(code.toUnicode());
+        //console.log(code);
+        //console.log(code.toUnicode());
     }
 
     unsafeWindow.lastInputClicked.value = unsafeWindow.lastInputClicked.value.substr(0, selectionStart)
@@ -351,29 +362,29 @@ function showSettings(event)
 function buildMenu()
 {
     updateLanguagePack();
-    //if (languagePacks === null)
-    //{
+    if (languagePacks === null)
+    {
         updateLanguagePack("XW_Diacritics");
         updateLanguagePack("XE_ExtendedLatin");
         updateLanguagePack("GR_Greek");
-    //}
+    }
     
     var mainPanel = document.createElement('div');
     mainPanel.id = "mbunicodecharsMainPanel";
     mainPanel.className="mbunicodecharsHide";
 
     var languagesPanel = document.createElement('div');
-    languagesPanel.style.border = "2px solid blue";
+    languagesPanel.className = "mbunicodecharsLanguagesPanel";
     languagesPanel.id = "mbunicodecharsLanguagesPanel";
 
     var flagsPanel = document.createElement('div');
     flagsPanel.className = "mbunicodecharsFlagsPanel";
-    flagsPanel.style.width = "55px";
+    flagsPanel.style.width = "55px"; //Force width, won't work correctly using styles to determine the size while the panel is hidden
     flagsPanel.id = "mbunicodecharsFlagsPanel";
 
-    console.log("Getting language packs from local storage");
     var languagePacks = JSON.parse(localStorage.getItem("mb.unicodechars_languagePacks"));
-    console.log("Languages packs retrived from local storage");
+
+    var size = "192px"; //Languagepanel width
 
     languagePacks.forEach( function(lp) {
 
@@ -385,122 +396,68 @@ function buildMenu()
         flagsPanel.appendChild(flag);
 
         var menuItems = lp.menuItems;
-        var str = [];
-        var dft = 1;
 
         var languagePanel = document.createElement('div');
         languagePanel.className="mbunicodecharsHide";
         languagePanel.id = lp.code+"_"+lp.name;
-        languagePanel.isDiactirics = lp.isDIacritics;
+        languagePanel.style.width = size; //fixed size rather than in css style to ensure getting panel size if hidden
 
         var itemIndex = 0; //We need to maintain index reference because some items might be dropped if disabled
+        var dft = 0; // default value for focused item
         var item;
 
         //close option, mandatory
         var closeItem = document.createElement('div');
         closeItem.className = "mbunicodecharsOptionInactive";
+        closeItem.style.width = size; //fixed size rather than in css style to ensure getting panel size if hidden
         closeItem.index = 0;
         closeItem.addEventListener('click',close);
         closeItem.addEventListener('mouseenter',onMenuMouseEnter);
-        closeItem.innerHTML = '<div class="mbunicodecharsOptionRightColumn" align="right"><button class="nobutton icon remove-item" title="Close" type="button"></button></div>';
+        closeItem.innerHTML = '<div class="mbunicodecharsOptionOther"><button class="nobutton icon remove-item" title="Close" type="button"></button></div>';
 
         languagePanel.appendChild(closeItem);
 
         //showbox, mandatory
+        //TODO : Move styles to css except width
         var showBox = document.createElement('div');
-        showBox.style.display = "flex";
-        showBox.style.alignItems="center";
-        showBox.innerHTML = '<div style="font-size: 40px; min-width: 45px; min-height: 45px; text-align: center; padding:10px;">\u00A0</div>';
-        showBox.innerHTML += '<div style"align-self: flex-start; margin: 2px;">\u00A0</div>';
+        showBox.className = "mbunicodecharsShowBox";
+        showBox.style.width = size; //fixed size rather than in css style to ensure getting panel size if hidden
+        showBox.innerHTML = '<div class="mbunicodecharsShowBoxLeft">\u00A0</div>';
+        showBox.innerHTML += '<div class="mbunicodecharsShowBoxRight">\u00A0</div>';
         showBox.index = ++itemIndex;
-        languagePanel.appendChild(showBox);
 
-        //if (lp.code !="XW" || lp.name != "Diacritics")
-        if (false)
+        languagePanel.appendChild(showBox)
+
+        for (var j=0; j<menuItems.length; j++)
         {
-            languagePanel.style.flexDirection = "column";
-            closeItem.style.justifyContent = "flex-end";
-            closeItem.style.flexDirection = "row";
-            for (var i=0; i<menuItems.length; i++)
+            if (menuItems[j].enabled)
             {
-                if (menuItems[i].enabled)
+                item = document.createElement('div');
+                item.className = "mbunicodecharsOptionInactive";
+                item.index = ++itemIndex;
+                item.addEventListener('click', onMenuOptionClic);
+                item.addEventListener('mouseenter',onMenuMouseEnter);
+                item.innerHTML = '<div class="mbunicodecharsOptionChar">'+menuItems[j].code+'</div>'
+
+                item.code = menuItems[j].code;
+                item.name = menuItems[j].name;
+                item.isCombiningChar = menuItems[j].code.isCombiningCharacter();
+
+                if (menuItems[j].default)
                 {
-                    item = item = document.createElement('div');
-                    item.code = menuItems[i].code;
-                    item.className = "mbunicodecharsOptionInactive";
-                    item.style.display="flex";
-                    item.index = ++itemIndex;
-                    item.addEventListener('click', onMenuOptionClic);
-                    item.addEventListener('mouseenter',onMenuMouseEnter);
-
-                    item.innerHTML = '<div class="mbunicodecharsOptionChar">'+menuItems[i].code+
-                        '</div><div class="mbunicodecharsOptionRightColumn">'+menuItems[i].name+'</div>';
-                    languagePanel.appendChild(item);
-
-                    if (menuItems[i].default)
-                    {
-                        dft = itemIndex;
-                    }
+                    dft = itemIndex;
                 }
-            }
-        }
-        else
-        {
-            //build new/diactitics menu
 
-            dft = 2; // set a default menu option value
-
-            var size = "192px";
-            languagePanel.style.flexWrap = "wrap";
-            languagePanel.style.width = size;
-
-            closeItem.style.width = size;
-            showBox.style.width = size;
-
-            for (var j=0; j<menuItems.length; j++)
-            {
-                if (menuItems[j].enabled)
-                {
-                    item = document.createElement('div');
-                    item.className = "mbunicodecharsOptionInactive";
-                    item.style.justifyContent = "center";
-                    item.index = ++itemIndex;
-                    item.addEventListener('click', onMenuOptionClic);
-                    item.addEventListener('mouseenter',onMenuMouseEnter);
-
-                    var subItem = document.createElement('div');
-                    subItem.className = "mbunicodecharsOptionChar";
-                    subItem.style.border = "1px solid #E8E8E8";
-                    subItem.style.fontSize = "16px";
-                    item.code = menuItems[j].code;
-                    item.name = menuItems[j].name;
-                    if (lp.isisDiactirics)
-                    {
-                        subItem.innerHTML = "\u25CC";
-                    }
-
-                    subItem.innerHTML += menuItems[j].code;
-                    subItem.align = "center";
-
-                    if (menuItems[j].default)
-                    {
-                        dft = itemIndex;
-                    }
-
-                    item.appendChild(subItem);
-                    languagePanel.appendChild(item);
-                }
+                languagePanel.appendChild(item);
             }
         }
 
         item = document.createElement('div');
-        item.style.width = size;
+        item.style.width = size; //fixed size rather than in css style to ensure getting panel size if hidden
         item.className = "mbunicodecharsOptionInactive";
-        //item.style.justifyContent = "flex-end";
         item.id = "settings";
         item.index = ++itemIndex;
-        //item.innerHTML = '<div class="mbunicodecharsOptionChar"></div><div class="mbunicodecharsOptionRightColumn">(upcoming) settings</div>';
-        item.innerHTML = '<div class="mbunicodecharsOptionRightColumn" align="right">(upcoming) settings</div>';
+        item.innerHTML = '<div class="mbunicodecharsOptionOther">(upcoming) settings</div>';
         item.addEventListener('click', showSettings);
         item.addEventListener('mouseenter',onMenuMouseEnter);
         languagePanel.appendChild(item);
@@ -513,7 +470,7 @@ function buildMenu()
     languagesPanel.defaultLanguage=0;
     languagesPanel.activeLanguage = 0;
 
-    //load flags css is not, and if requiried
+    //load flags css if not in the page, and if requiried
     if (flagsPanel.childNodes.length > 1)
     {
         var cssFileName = "https://staticbrainz.org/MB/styles/icons-5610cb57fe.css";
@@ -528,8 +485,7 @@ function buildMenu()
             document.head.appendChild(newCSS);
         }
     }
-    //else hide flags panel
-    else
+    else // lese hide flags panel
     {
         flagsPanel.className = "mbunicodecharsHide";
     }
@@ -549,7 +505,7 @@ function updateLanguagePack(source)
     if (source === undefined)
     {
         //Update from local worldwide punctuation
-        newLanguagePack = {"code":"XW", "name": "Worldwide punctuation", "version": "0.9.1", "isDiactirics":false, "menuItems":[]};
+        newLanguagePack = {"code":"XW", "name": "Worldwide punctuation", "version": "0.9.2", "menuItems":[]};
 
         if (languagePacks !== null)
         {
@@ -570,16 +526,18 @@ function updateLanguagePack(source)
             {"code": "\u201C", "name": "Left double quotation mark", "offset":1, "enabled":true, "default":false},
             {"code": "\u201D", "name": "Right double quotation mark", "offset":1, "enabled":true, "default":false},
             {"code": "\u201C\u201D", "name": "Left+Right double quotation marks", "offset":1, "enabled":true, "default":false},
-            {"code":"\u00AB","name":"Left-pointing double angle quotation mark","offset":1,"enabled":true,"default":false},
-            {"code":"\u00BB","name":"Right-pointing double angle quotation mark","offset":1,"enabled":true,"default":false},
-            {"code":"\u00AB\u00BB","name":"Left-pointing+Right-pointing double angle quotation mark","offset":1,"enabled":true,"default":false},
+            {"code":"\u00AB","name":"Left-pointing double angle quotation mark","offset":1, "enabled":true,"default":false},
+            {"code":"\u00BB","name":"Right-pointing double angle quotation mark","offset":1, "enabled":true,"default":false},
+            {"code":"\u00AB\u00BB","name":"Left-pointing+Right-pointing double angle quotation mark","offset":1, "enabled":true,"default":false},
             {"code": "\u2026", "name": "Horizontal ellipsis", "offset":1, "enabled":true, "default":false},
             {"code": "\u2010", "name": "Hyphen", "offset":1, "enabled":true, "default":false},
             {"code": "\u2212", "name": "Minus sign", "offset":1, "enabled":true, "default":false},
             {"code": "\u2013", "name": "En dash", "offset":1, "enabled":true, "default":false},
             {"code": "\u2014", "name": "Em dash", "offset":1, "enabled":true, "default":false},
             {"code": "\u2032", "name": "Prime", "offset":1, "enabled":true, "default":false},
-            {"code": "\u2033", "name": "Double prime", "offset":1, "enabled":true, "default":false}
+            {"code": "\u2033", "name": "Double prime", "offset":1, "enabled":true, "default":false},
+            {"code": "\u00BF", "name": "Inverted question mark", "offset":1, "enabled":true, "default":false},
+            {"code": "\u00A1", "name": "Inverted exclamation mark", "offset":1, "enabled":true, "default":false}
         ];
 
         processLanguagePackUpdate(languagePacks, currentLanguagePack, newLanguagePack);
@@ -587,7 +545,7 @@ function updateLanguagePack(source)
     }
     else
     {
-        var jRequest = $.getJSON( 'https://raw.githubusercontent.com/Smeulf/userscripts/dev/languages/'+source+'.json')
+        var jRequest = $.getJSON( 'https://raw.githubusercontent.com/Smeulf/userscripts/extradev/languages/'+source+'.json')
         //var jRequest = $.getJSON( 'http://localhost/languages/'+source+'.json') //for local dev only
         .done(function() {
             newLanguagePack = jRequest.responseJSON;
@@ -648,9 +606,7 @@ function processLanguagePackUpdate(languagePacks, currentLanguagePack, newLangua
         currentLanguagePack.version = newLanguagePack.version;
         currentLanguagePack.menuItems = newLanguagePack.menuItems;
     }
-    console.log("Setting language packs to local storage");
     localStorage.setItem("mb.unicodechars_languagePacks",JSON.stringify(languagePacks));
-    console.log("Languages packs set to local storage");
 }
 
 function getCountries()
@@ -1013,3 +969,19 @@ String.prototype.toUnicode = function(){
     }
     return result;
 };
+
+String.prototype.isCombiningCharacter = function(){
+    if (this.length == 0 || this.length > 1)
+    {
+        return false;
+    }
+    else
+    {
+        var val = "0x"+this[0].charCodeAt(0).toString(16);
+        return (val >= 0x0300 && val <= 0x036F || // Combining Diacritical Marks
+                val >= 0x1AB0 && val <= 0x1AFF || // Combining Diacritical Marks Extended
+                val >= 0x1DC0 && val <= 0x1DFF || // Combining Diacritical Marks Supplement
+                val >= 0x20D0 && val <= 0x20FF || // Combining Diacritical Marks for Symbols
+                val >= 0xFE20 && val <= 0xFE2F)   // Combining Half Marks
+    }
+}
