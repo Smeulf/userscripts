@@ -210,6 +210,9 @@ function onMenuOptionClic(event)
     unsafeWindow.menuOpened = false;
     unsafeWindow.lastInputClicked.focus();
     unsafeWindow.lastInputClicked.setSelectionRange(unsafeWindow.selectionStart+1, unsafeWindow.selectionStart+1);
+    var ev = document.createEvent('HTMLEvents');
+    ev.initEvent('change', true, true);
+    unsafeWindow.lastInputClicked.dispatchEvent(ev);
 }
 
 function close(event)
