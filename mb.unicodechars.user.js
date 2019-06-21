@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         mb.unicodechars
 // @namespace    https://github.com/Smeulf/userscripts
-// @version      0.10.0
+// @version      0.10.1
 // @description  Ctrl+M on MusicBrainz input text or textarea controls shows context menu for unicode characters. Just click on the menu line to send the character or close with Escape key.
 // @author       Smeulf
 // @match        *://*.musicbrainz.org/*
@@ -297,6 +297,7 @@ function updateLanguagePack(source)
             {"code": "\u2212", "name": "Minus", "offset":1, "enabled":true, "default":false},
             {"code": "\u2013", "name": "En Dash", "offset":1, "enabled":true, "default":false},
             {"code": "\u2014", "name": "Em Dash", "offset":1, "enabled":true, "default":false},
+			{"code": "\u2012", "name": "Figure Dash", "offset":1, "enabled":true, "default":false},
             {"code": "\u2032", "name": "Prime", "offset":1, "enabled":true, "default":false},
             {"code": "\u2033", "name": "Double Prime", "offset":1, "enabled":true, "default":false}
         ];
