@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         mb.unicodechars
 // @namespace    https://github.com/Smeulf/userscripts
-// @version      0.10.1
+// @version      0.10.2
 // @description  Ctrl+M on MusicBrainz input text or textarea controls shows context menu for unicode characters. Just click on the menu line to send the character or close with Escape key.
 // @author       Smeulf
 // @match        *://*.musicbrainz.org/*
@@ -186,8 +186,7 @@ function navigateMenu(event)
             ev.initEvent('click', true, false);
             cn[menu.activeOption].dispatchEvent(ev);
         }
-
-        if (event.key.match(/ArrowDown|ArrowRight/))
+        else if (event.key.match(/ArrowRight/))
         {
             if (cn.length -1 > menu.activeOption)
             {
@@ -195,8 +194,7 @@ function navigateMenu(event)
                 setActiveOption(menu.activeOption + (menu.activeOption==0 ? 2:1));
             }
         }
-
-        if (event.key.match(/ArrowUp|ArrowLeft/))
+        else if (event.key.match(/ArrowLeft/))
         {
             if (menu.activeOption > 0)
             {
@@ -204,13 +202,22 @@ function navigateMenu(event)
                 setActiveOption(menu.activeOption - (menu.activeOption==2 ? 2:1));
             }
         }
-
-        if (event.key == "Escape")
+        else if (event.key.match(/ArrowDown/))
+        {
+            //we need to skip the option at index 1 (showBox)
+            //we have 8 items per row: 192 (languagePanel width size var) / 24 (mbunicodecharsOptionChar border + padding + width)
+            setActiveOption(Math.min(menu.activeOption + (menu.activeOption==0 ? 2:8), cn.length -1));
+        }
+        else if (event.key.match(/ArrowUp/))
+        {
+            //we need to skip the option at index 1 (showBox)
+            setActiveOption(Math.max(menu.activeOption - (menu.activeOption==2 ? 2:8), 0));
+        }
+        else if (event.key == "Escape")
         {
             close();
         }
-
-        if (event.key == "Tab" && languagesPanel.childNodes.length>1)
+        else if (event.key == "Tab" && languagesPanel.childNodes.length>1)
         {
             var direction = event.shiftKey ? -1 : 1;
             var newIndex = languagesPanel.activeLanguage+direction;
