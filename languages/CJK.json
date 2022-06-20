@@ -1,0 +1,9 @@
+{
+	"code":"CJK",
+	"name":"CJK",
+	"version":"0.10.3",
+	"menuItems":[
+		{"code": "\u301C", "name": "Wave Dash", "offset":1, "enabled":true, "default":true},
+		{"code": "\u300C\u300D", "name": "Left+Right Corner Brackets", "offset":1, "enabled":true, "default":false},
+		{"code": "\u300E\u300F", "name": "Left+Right White Corner Brackets", "offset":1, "enabled":true, "default":false}]
+}
