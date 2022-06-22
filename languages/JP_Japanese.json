@@ -1,0 +1,9 @@
+{
+	"code":"JP",
+	"name":"Japanese",
+	"version":"0.10.4",
+	"menuItems":[
+		{"code": "\u300E\u300F", "name": "Left+Right White Corner Brackets", "offset":1, "enabled":true, "default":false},
+		{"code": "\u300C\u300D", "name": "Left+Right Corner Brackets", "offset":1, "enabled":true, "default":false},
+		{"code": "\u301C", "name": "Wave Dash", "offset":1, "enabled":true, "default":true}]
+}

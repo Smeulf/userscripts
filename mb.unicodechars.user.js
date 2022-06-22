@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         mb.unicodechars
 // @namespace    https://github.com/Smeulf/userscripts
-// @version      0.10.3
+// @version      0.10.4
 // @description  Ctrl+M on MusicBrainz input text or textarea controls shows context menu for unicode characters. Just click on the menu line to send the character or close with Escape key.
 // @author       Smeulf
 // @match        *://*.musicbrainz.org/*
@@ -378,7 +378,7 @@ function buildMenu()
         updateLanguagePack("XW_Diacritics");
         updateLanguagePack("XE_ExtendedLatin");
         updateLanguagePack("GR_Greek");
-        updateLanguagePack("CJK");
+        updateLanguagePack("JP");
     //}
     
     var mainPanel = document.createElement('div');
@@ -518,7 +518,7 @@ function updateLanguagePack(source)
     if (source === undefined)
     {
         //Update from local worldwide punctuation
-        newLanguagePack = {"code":"XW", "name": "Worldwide punctuation", "version": "0.10.3", "menuItems":[]};
+        newLanguagePack = {"code":"XW", "name": "Worldwide punctuation", "version": "0.10.4", "menuItems":[]};
 
         if (languagePacks !== null)
         {
@@ -544,14 +544,14 @@ function updateLanguagePack(source)
             {"code":"\u00AB\u00BB","name":"Left-pointing+Right-pointing double angle quotation mark","offset":1, "enabled":true,"default":false},
             {"code": "\u2026", "name": "Horizontal ellipsis", "offset":1, "enabled":true, "default":false},
             {"code": "\u2010", "name": "Hyphen", "offset":1, "enabled":true, "default":false},
-            {"code": "\u2212", "name": "Minus sign", "offset":1, "enabled":true, "default":false},
             {"code": "\u2013", "name": "En dash", "offset":1, "enabled":true, "default":false},
             {"code": "\u2014", "name": "Em dash", "offset":1, "enabled":true, "default":false},
             {"code": "\u2032", "name": "Prime", "offset":1, "enabled":true, "default":false},
             {"code": "\u2033", "name": "Double prime", "offset":1, "enabled":true, "default":false},
+            {"code": "\u2212", "name": "Minus sign", "offset":1, "enabled":true, "default":false},
+            {"code": "\u00D7", "name": "Multiplication Sign", "offset":1, "enabled":true, "default":false},
             {"code": "\u00BF", "name": "Inverted question mark", "offset":1, "enabled":true, "default":false},
-            {"code": "\u00A1", "name": "Inverted exclamation mark", "offset":1, "enabled":true, "default":false},
-            {"code": "\u00D7", "name": "Multiplication Sign", "offset":1, "enabled":true, "default":false}
+            {"code": "\u00A1", "name": "Inverted exclamation mark", "offset":1, "enabled":true, "default":false}
         ];
 
         processLanguagePackUpdate(languagePacks, currentLanguagePack, newLanguagePack);
@@ -629,7 +629,6 @@ function getCountries()
     if(countries === undefined)
     {
         countries = {"XW":"[Worldwide]",
-                     "CJK":"[CJK]",
                      "AF":"Afghanistan",
                      "AX":"Åland Islands",
                      "AL":"Albania",
