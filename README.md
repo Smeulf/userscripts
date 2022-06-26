@@ -10,6 +10,8 @@ Tested under Chrome+Tampermonkey, Vivaldi+Violent Monkey (thanks @jesus2099), Fi
 
 ** Under opera, the Ctrl+M shortcut of the script will overwrite the Opera default Ctrl+M for tab navigation. Just click out the inputbox to use Opera Ctrl+M tab navigation.
 
+  0.10.4 : Add Multiplication Sign, Wave Dash and Corner Brackets
+
   0.10.1 : Add Figure Dash
 
   0.10.0 : Fix issue #2 (https://github.com/Smeulf/userscripts/issues/2) (Thanks jesus2099)

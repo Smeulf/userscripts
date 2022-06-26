@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         mb.unicodechars
 // @namespace    https://github.com/Smeulf/userscripts
-// @version      0.10.1
+// @version      0.10.4
 // @description  Ctrl+M on MusicBrainz input text or textarea controls shows context menu for unicode characters. Just click on the menu line to send the character or close with Escape key.
 // @author       Smeulf
 // @match        *://*.musicbrainz.org/*
@@ -271,7 +271,7 @@ function updateLanguagePack(source)
     if (source === undefined)
     {
         //Update from local worldwide punctuation
-        newLanguagePack = {"code":"XW", "name": "Worldwide punctuation", "version": "0.9.0", "menuItems":[]};
+        newLanguagePack = {"code":"XW", "name": "Worldwide punctuation", "version": "0.10.4", "menuItems":[]};
 
         if (languagePacks !== null)
         {
@@ -292,14 +292,18 @@ function updateLanguagePack(source)
             {"code": "\u201C", "name": "Left Double Quotes", "offset":1, "enabled":true, "default":false},
             {"code": "\u201D", "name": "Right Double Quotes", "offset":1, "enabled":true, "default":false},
             {"code": "\u201C\u201D", "name": "Left+Right Double Quotes", "offset":1, "enabled":true, "default":false},
+            {"code": "\u300C\u300D", "name": "Left+Right Corner Brackets", "offset":1, "enabled":true, "default":false},
+            {"code": "\u300E\u300F", "name": "Left+Right White Corner Brackets", "offset":1, "enabled":true, "default":false},
             {"code": "\u2026", "name": "Horizontal Ellipsis", "offset":1, "enabled":true, "default":false},
             {"code": "\u2010", "name": "Hyphen", "offset":1, "enabled":true, "default":false},
-            {"code": "\u2212", "name": "Minus", "offset":1, "enabled":true, "default":false},
             {"code": "\u2013", "name": "En Dash", "offset":1, "enabled":true, "default":false},
             {"code": "\u2014", "name": "Em Dash", "offset":1, "enabled":true, "default":false},
-			{"code": "\u2012", "name": "Figure Dash", "offset":1, "enabled":true, "default":false},
+            {"code": "\u2012", "name": "Figure Dash", "offset":1, "enabled":true, "default":false},
+            {"code": "\u301C", "name": "Wave Dash", "offset":1, "enabled":true, "default":false},
             {"code": "\u2032", "name": "Prime", "offset":1, "enabled":true, "default":false},
-            {"code": "\u2033", "name": "Double Prime", "offset":1, "enabled":true, "default":false}
+            {"code": "\u2033", "name": "Double Prime", "offset":1, "enabled":true, "default":false},
+            {"code": "\u2212", "name": "Minus Sign", "offset":1, "enabled":true, "default":false},
+            {"code": "\u00D7", "name": "Multiplication Sign", "offset":1, "enabled":true, "default":false}
         ];
     }
     else
