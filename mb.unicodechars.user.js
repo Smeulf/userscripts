@@ -20,14 +20,16 @@ let unsafeWindow = {
 */
 GM_addStyle('\
 .mbunicodecharsMenuShow {\
-    z-index:1000;\
+    z-index: 1000;\
     position: absolute;\
-    background-color:#D8D8D8;\
-    border: 1px solid blue;\
+    background-color: #EEE;\
+    border: 1px solid #CCC;\
+    border-left-color: #EEE;\
+    border-top-color: #EEE;\
     padding: 2px;\
     display: block;\
     margin: 0;\
-    font-family: sans-serif;\
+    font-family: inherit;\
 }\
 \
 .mbunicodecharsMenuHide {\
@@ -35,29 +37,41 @@ GM_addStyle('\
 }\
 \
 .mbunicodecharsOptionActive {\
-    background-color:#FFFF00;\
+    background-color: #DFF4FF;\
+    color: #369;\
     display: table-row;\
 }\
 .mbunicodecharsOptionInactive {\
-    background-color:#D8D8D8;\
+    background-color: #EEE;\
     display: table-row;\
 }\
 .mbunicodecharsOptionRow {\
     display: table-row;\
 }\
+.mbunicodecharsOptionLeftColumn,\
+.mbunicodecharsOptionRightColumn {\
+    border: 1px solid #EEE;\
+    display: table-cell;\
+    padding: 2px;\
+}\
 .mbunicodecharsOptionLeftColumn {\
-    width:12%;\
-    display:table-cell;\
+    border-right: none;\
+    width: 15%;\
 }\
 .mbunicodecharsOptionRightColumn {\
-    width:88%;\
-    display:table-cell;\
+    border-left: none;\
+    width: 85%;\
+}\
+.mbunicodecharsOptionActive .mbunicodecharsOptionLeftColumn,\
+.mbunicodecharsOptionActive .mbunicodecharsOptionRightColumn {\
+    border-color: #C2E1EF;\
+    cursor: pointer;\
 }\
 .mbunicodecharsSettingsMenu {\
     position: absolute;\
     width: 500px;\
     height: 300px;\
-    background-color:#D8D8D8;\
+    background-color: #EEE;\
 }\
 ');
 
