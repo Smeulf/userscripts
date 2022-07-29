@@ -6,7 +6,13 @@
 // @author       Smeulf
 // @match        *://*.musicbrainz.org/*
 // @grant        GM_addStyle
+// @require      https://code.jquery.com/jquery-3.6.0.min.js
 // ==/UserScript==
+
+
+let unsafeWindow = {
+    menuOpened: false
+};
 
 
 /*
