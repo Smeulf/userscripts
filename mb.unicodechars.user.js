@@ -1,13 +1,20 @@
 // ==UserScript==
 // @name         mb.unicodechars
 // @namespace    https://github.com/Smeulf/userscripts
-// @version      0.10.4
+// @version      0.10.5
 // @description  Ctrl+M on MusicBrainz input text or textarea controls shows context menu for unicode characters. Just click on the menu line to send the character or close with Escape key.
 // @author       Smeulf
 // @match        *://*.musicbrainz.org/*
 // @grant        GM_addStyle
 // ==/UserScript==
 
+
+/*
+Create global object for global variables
+*/
+let glob = {
+	menuOpened: false,
+};
 
 /*
   Styles for custom context menu
@@ -69,13 +76,13 @@ waitForKeyElements("textarea", addListener);
 */
 function addListener(obj)
 {
-    obj[0].addEventListener('keydown', displayMenu);
-    obj[0].addEventListener('keydown', navigateMenu);
+    obj.addEventListener('keydown', displayMenu);
+    obj.addEventListener('keydown', navigateMenu);
 }
 
 
 /*
-  Event callback. Displays the menu and set unsafewindow variables for persistance
+  Event callback. Displays the menu and set glob variables for persistance
 */
 function displayMenu(event)
 {
@@ -86,22 +93,22 @@ function displayMenu(event)
         Create custom context menu if not exists
         */
 
-        if (!unsafeWindow.mbunicodecharMenuCreated)
+        if (!glob.mbunicodecharMenuCreated)
         {
             console.log("Create mb.unicodechars menu");
             buildMenu();
-            unsafeWindow.mbunicodecharMenuCreated = true;
+            glob.mbunicodecharMenuCreated = true;
         }
 
         event.preventDefault();
 
-        unsafeWindow.lastInputClicked = event.target;
-        unsafeWindow.selectionStart = event.target.selectionStart;
-        unsafeWindow.selectionEnd = event.target.selectionEnd;
+        glob.lastInputClicked = event.target;
+        glob.selectionStart = event.target.selectionStart;
+        glob.selectionEnd = event.target.selectionEnd;
 
         var menu = document.getElementById("mbunicodecharsMenu");
 
-        var rect = unsafeWindow.lastInputClicked.getBoundingClientRect();
+        var rect = glob.lastInputClicked.getBoundingClientRect();
         menu.style.top = (rect.bottom + window.scrollY) + 'px';
         menu.style.left = (rect.left + window.scrollX) + 'px';
 
@@ -125,13 +132,13 @@ function displayMenu(event)
         cn[cn.length-1].addEventListener('mouseenter',onMenuMouseEnter);
 
         menu.className = "mbunicodecharsMenuShow";
-        unsafeWindow.menuOpened = true;
+        glob.menuOpened = true;
     }
 }
 
 function navigateMenu(event)
 {
-    if (unsafeWindow.menuOpened == true && event.key.match(/ArrowDown|ArrowUp|Enter|Escape/))
+    if (glob.menuOpened == true && event.key.match(/ArrowDown|ArrowUp|Enter|Escape/))
     {
         event.preventDefault();
         event.cancelBubble = true;
@@ -199,28 +206,28 @@ function onMenuOptionClic(event)
         id = event.target.parentElement.id;
     }
 
-    unsafeWindow.lastInputClicked.value = unsafeWindow.lastInputClicked.value.substr(0, unsafeWindow.selectionStart)
+    glob.lastInputClicked.value = glob.lastInputClicked.value.substr(0, glob.selectionStart)
         + id
-        + unsafeWindow.lastInputClicked.value.substr(unsafeWindow.selectionEnd);
+        + glob.lastInputClicked.value.substr(glob.selectionEnd);
     var menu = document.getElementById("mbunicodecharsMenu");
     var cn = menu.childNodes;
     cn[menu.activeOption].className = "mbunicodecharsOptionInactive";
     document.getElementById("mbunicodecharsMenu").className = "mbunicodecharsMenuHide";
 
-    unsafeWindow.menuOpened = false;
-    unsafeWindow.lastInputClicked.focus();
-    unsafeWindow.lastInputClicked.setSelectionRange(unsafeWindow.selectionStart+1, unsafeWindow.selectionStart+1);
+    glob.menuOpened = false;
+    glob.lastInputClicked.focus();
+    glob.lastInputClicked.setSelectionRange(glob.selectionStart+1, glob.selectionStart+1);
     var ev = document.createEvent('HTMLEvents');
     ev.initEvent('change', true, true);
-    unsafeWindow.lastInputClicked.dispatchEvent(ev);
+    glob.lastInputClicked.dispatchEvent(ev);
 }
 
 function close(event)
 {
     document.getElementById("mbunicodecharsMenu").className = "mbunicodecharsMenuHide";
-    unsafeWindow.menuOpened = false;
-    unsafeWindow.lastInputClicked.focus();
-    unsafeWindow.lastInputClicked.setSelectionRange(unsafeWindow.selectionStart, unsafeWindow.selectionEnd);
+    glob.menuOpened = false;
+    glob.lastInputClicked.focus();
+    glob.lastInputClicked.setSelectionRange(glob.selectionStart, glob.selectionEnd);
 }
 
 function showSettings(event)
@@ -343,89 +350,29 @@ function updateLanguagePack(source)
     localStorage.setItem("mb.unicodechars_languagePacks",JSON.stringify(languagePacks));
 }
 
-/*
-Function from https://gist.githubusercontent.com/raw/2625891/waitForKeyElements.js
-Credits to BrockA, https://github.com/BrockA
-Analyses the page every M ms for specif tags and calls a function, usefull when pages loads AJAX content
-Only the timer was changed from 300ms to 500ms
-*/
-function waitForKeyElements (
-    selectorTxt,    /* Required: The jQuery selector string that
-                        specifies the desired element(s).
-                    */
-    actionFunction, /* Required: The code to run when elements are
-                        found. It is passed a jNode to the matched
-                        element.
-                    */
-    bWaitOnce,      /* Optional: If false, will continue to scan for
-                        new elements even after the first match is
-                        found.
-                    */
-    iframeSelector  /* Optional: If set, identifies the iframe to
-                        search.
-                    */
-) {
-    var targetNodes, btargetsFound;
-
-    if (typeof iframeSelector == "undefined")
-    {
-        targetNodes = $(selectorTxt);
-    }
-    else
-    {
-        targetNodes = $(iframeSelector).contents().find (selectorTxt);
-    }
-
-    if (targetNodes && targetNodes.length > 0) {
-        btargetsFound = true;
-        /*--- Found target node(s).  Go through each and act if they
-            are new.
-        */
-        targetNodes.each ( function () {
-            var jThis = $(this);
-            var alreadyFound = jThis.data ('alreadyFound') || false;
-
-            if (!alreadyFound) {
-                //--- Call the payload function.
-                var cancelFound = actionFunction (jThis);
-                if (cancelFound)
-                {
-                    btargetsFound = false;
-                }
-                else
-                {
-                    jThis.data ('alreadyFound', true);
-                }
-            }
-        } );
-    }
-    else {
-        btargetsFound = false;
-    }
-
-    //--- Get the timer-control variable for this selector.
-    var controlObj = waitForKeyElements.controlObj || {};
-    var controlKey = selectorTxt.replace (/[^\w]/g, "_");
-    var timeControl = controlObj [controlKey];
-
-    //--- Now set or clear the timer as appropriate.
-    if (btargetsFound && bWaitOnce && timeControl) {
-        //--- The only condition where we need to clear the timer.
-        clearInterval (timeControl);
-        delete controlObj [controlKey]
-    }
-    else {
-        //--- Set a timer, if needed.
-        if ( ! timeControl) {
-            timeControl = setInterval ( function () {
-                waitForKeyElements (selectorTxt,
-                                    actionFunction,
-                                    bWaitOnce,
-                                    iframeSelector
-                                   );
-            },500);
-            controlObj [controlKey] = timeControl;
-        }
-    }
-    waitForKeyElements.controlObj = controlObj;
+// Analyses the page every M ms for specif tags and calls a function, usefull when pages loads AJAX content
+function waitForKeyElements (    
+	selectorTxt,   // Required: The selector string that specifies the desired element(s).
+	actionFunction // Required: The code to run when elements are found. 
+)
+{
+	targetNodes = document.querySelectorAll(selectorTxt+':not([data-mbunicodechars="1"])');
+	
+	targetNodes.forEach(node => {
+		actionFunction(node);
+		node.setAttribute('data-mbunicodechars',"1");
+	});
+		
+	//--- Get the timer-control variable for this selector.
+	var controlObj = waitForKeyElements.controlObj || {};
+	var controlKey = selectorTxt.replace (/[^\w]/g, "_");
+	var timeControl = controlObj [controlKey];
+		
+	//--- Start timer and call the function again
+	if ( ! timeControl) 
+	{
+		timeControl = setInterval ( function () { waitForKeyElements(selectorTxt, actionFunction);}, 500);
+        controlObj [controlKey] = timeControl;
+	}
+	waitForKeyElements.controlObj = controlObj;
 }
