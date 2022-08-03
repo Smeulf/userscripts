@@ -1,13 +1,28 @@
 // ==UserScript==
 // @name         mb.unicodechars
 // @namespace    https://github.com/Smeulf/userscripts
-// @version      0.10.4
+// @version      0.10.5
 // @description  Ctrl+M on MusicBrainz input text or textarea controls shows context menu for unicode characters. Just click on the menu line to send the character or close with Escape key.
 // @author       Smeulf
+// @require      https://code.jquery.com/jquery-3.6.0.min.js
 // @match        *://*.musicbrainz.org/*
 // @grant        GM_addStyle
 // ==/UserScript==
 
+
+/*
+Init jQuery in no conflict mode
+*/
+var jq360 = $.noConflict(true);
+
+/*
+Create global object for global variables
+*/
+
+let glob = {
+	menuOpened: false,
+	jq: jq360
+};
 
 /*
   Styles for custom context menu
@@ -75,7 +90,7 @@ function addListener(obj)
 
 
 /*
-  Event callback. Displays the menu and set unsafewindow variables for persistance
+  Event callback. Displays the menu and set glob variables for persistance
 */
 function displayMenu(event)
 {
@@ -86,22 +101,22 @@ function displayMenu(event)
         Create custom context menu if not exists
         */
 
-        if (!unsafeWindow.mbunicodecharMenuCreated)
+        if (!glob.mbunicodecharMenuCreated)
         {
             console.log("Create mb.unicodechars menu");
             buildMenu();
-            unsafeWindow.mbunicodecharMenuCreated = true;
+            glob.mbunicodecharMenuCreated = true;
         }
 
         event.preventDefault();
 
-        unsafeWindow.lastInputClicked = event.target;
-        unsafeWindow.selectionStart = event.target.selectionStart;
-        unsafeWindow.selectionEnd = event.target.selectionEnd;
+        glob.lastInputClicked = event.target;
+        glob.selectionStart = event.target.selectionStart;
+        glob.selectionEnd = event.target.selectionEnd;
 
         var menu = document.getElementById("mbunicodecharsMenu");
 
-        var rect = unsafeWindow.lastInputClicked.getBoundingClientRect();
+        var rect = glob.lastInputClicked.getBoundingClientRect();
         menu.style.top = (rect.bottom + window.scrollY) + 'px';
         menu.style.left = (rect.left + window.scrollX) + 'px';
 
@@ -125,13 +140,13 @@ function displayMenu(event)
         cn[cn.length-1].addEventListener('mouseenter',onMenuMouseEnter);
 
         menu.className = "mbunicodecharsMenuShow";
-        unsafeWindow.menuOpened = true;
+        glob.menuOpened = true;
     }
 }
 
 function navigateMenu(event)
 {
-    if (unsafeWindow.menuOpened == true && event.key.match(/ArrowDown|ArrowUp|Enter|Escape/))
+    if (glob.menuOpened == true && event.key.match(/ArrowDown|ArrowUp|Enter|Escape/))
     {
         event.preventDefault();
         event.cancelBubble = true;
@@ -199,28 +214,28 @@ function onMenuOptionClic(event)
         id = event.target.parentElement.id;
     }
 
-    unsafeWindow.lastInputClicked.value = unsafeWindow.lastInputClicked.value.substr(0, unsafeWindow.selectionStart)
+    glob.lastInputClicked.value = glob.lastInputClicked.value.substr(0, glob.selectionStart)
         + id
-        + unsafeWindow.lastInputClicked.value.substr(unsafeWindow.selectionEnd);
+        + glob.lastInputClicked.value.substr(glob.selectionEnd);
     var menu = document.getElementById("mbunicodecharsMenu");
     var cn = menu.childNodes;
     cn[menu.activeOption].className = "mbunicodecharsOptionInactive";
     document.getElementById("mbunicodecharsMenu").className = "mbunicodecharsMenuHide";
 
-    unsafeWindow.menuOpened = false;
-    unsafeWindow.lastInputClicked.focus();
-    unsafeWindow.lastInputClicked.setSelectionRange(unsafeWindow.selectionStart+1, unsafeWindow.selectionStart+1);
+    glob.menuOpened = false;
+    glob.lastInputClicked.focus();
+    glob.lastInputClicked.setSelectionRange(glob.selectionStart+1, glob.selectionStart+1);
     var ev = document.createEvent('HTMLEvents');
     ev.initEvent('change', true, true);
-    unsafeWindow.lastInputClicked.dispatchEvent(ev);
+    glob.lastInputClicked.dispatchEvent(ev);
 }
 
 function close(event)
 {
     document.getElementById("mbunicodecharsMenu").className = "mbunicodecharsMenuHide";
-    unsafeWindow.menuOpened = false;
-    unsafeWindow.lastInputClicked.focus();
-    unsafeWindow.lastInputClicked.setSelectionRange(unsafeWindow.selectionStart, unsafeWindow.selectionEnd);
+    glob.menuOpened = false;
+    glob.lastInputClicked.focus();
+    glob.lastInputClicked.setSelectionRange(glob.selectionStart, glob.selectionEnd);
 }
 
 function showSettings(event)
@@ -369,11 +384,11 @@ function waitForKeyElements (
 
     if (typeof iframeSelector == "undefined")
     {
-        targetNodes = $(selectorTxt);
+        targetNodes = glob.jq(selectorTxt);
     }
     else
     {
-        targetNodes = $(iframeSelector).contents().find (selectorTxt);
+        targetNodes = glob.jq(iframeSelector).contents().find (selectorTxt);
     }
 
     if (targetNodes && targetNodes.length > 0) {
@@ -382,7 +397,7 @@ function waitForKeyElements (
             are new.
         */
         targetNodes.each ( function () {
-            var jThis = $(this);
+            var jThis = glob.jq(this);
             var alreadyFound = jThis.data ('alreadyFound') || false;
 
             if (!alreadyFound) {
