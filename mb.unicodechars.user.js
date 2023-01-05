@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         mb.unicodechars
 // @namespace    https://github.com/Smeulf/userscripts
-// @version      0.10.4
+// @version      0.10.5
 // @description  Ctrl+M on MusicBrainz input text or textarea controls shows context menu for unicode characters. Just click on the menu line to send the character or close with Escape key.
 // @author       Smeulf
 // @match        *://*.musicbrainz.org/*
@@ -198,10 +198,10 @@ function onMenuOptionClic(event)
     {
         id = event.target.parentElement.id;
     }
-
-    unsafeWindow.lastInputClicked.value = unsafeWindow.lastInputClicked.value.substr(0, unsafeWindow.selectionStart)
-        + id
-        + unsafeWindow.lastInputClicked.value.substr(unsafeWindow.selectionEnd);
+    var newText = id.replace(/%s/g, unsafeWindow.lastInputClicked.value.substring(unsafeWindow.lastInputClicked.selectionStart, unsafeWindow.lastInputClicked.selectionEnd));
+    unsafeWindow.lastInputClicked.value = unsafeWindow.lastInputClicked.value.substr(0, unsafeWindow.lastInputClicked.selectionStart)
+        + newText
+        + unsafeWindow.lastInputClicked.value.substr(unsafeWindow.lastInputClicked.selectionEnd);
     var menu = document.getElementById("mbunicodecharsMenu");
     var cn = menu.childNodes;
     cn[menu.activeOption].className = "mbunicodecharsOptionInactive";
@@ -209,7 +209,13 @@ function onMenuOptionClic(event)
 
     unsafeWindow.menuOpened = false;
     unsafeWindow.lastInputClicked.focus();
-    unsafeWindow.lastInputClicked.setSelectionRange(unsafeWindow.selectionStart+1, unsafeWindow.selectionStart+1);
+    if (unsafeWindow.lastInputClicked.selectionStart != unsafeWindow.lastInputClicked.selectionEnd) {
+        unsafeWindow.lastInputClicked.selectionStart = unsafeWindow.lastInputClicked.selectionStart;
+        unsafeWindow.lastInputClicked.selectionEnd = unsafeWindow.lastInputClicked.selectionStart + newText.length;
+    } else {
+        unsafeWindow.lastInputClicked.selectionStart = unsafeWindow.lastInputClicked.selectionStart + 1;
+        unsafeWindow.lastInputClicked.selectionEnd = unsafeWindow.lastInputClicked.selectionStart;
+    }
     var ev = document.createEvent('HTMLEvents');
     ev.initEvent('change', true, true);
     unsafeWindow.lastInputClicked.dispatchEvent(ev);
@@ -243,7 +249,7 @@ function buildMenu()
     {
         if (menuItems[i].enabled)
         {
-            str.push('<div id="'+menuItems[i].code+'" class="mbunicodecharsOptionRow"><div class="mbunicodecharsOptionLeftColumn">'+menuItems[i].code+
+            str.push('<div id="'+menuItems[i].code+'" class="mbunicodecharsOptionRow"><div class="mbunicodecharsOptionLeftColumn">'+menuItems[i].code.replace(/%s/g, "")+
                      '</div><div class="mbunicodecharsOptionRightColumn">'+menuItems[i].name+'</div></div>');
         }
         if (menuItems[i].default)
@@ -271,7 +277,7 @@ function updateLanguagePack(source)
     if (source === undefined)
     {
         //Update from local worldwide punctuation
-        newLanguagePack = {"code":"XW", "name": "Worldwide punctuation", "version": "0.10.4", "menuItems":[]};
+        newLanguagePack = {"code":"XW", "name": "Worldwide punctuation", "version": "0.10.5", "menuItems":[]};
 
         if (languagePacks !== null)
         {
@@ -283,17 +289,17 @@ function updateLanguagePack(source)
             }
         }
 
-        console.log("mb.unicodechars: update requiried to version "+newLanguagePack.version);
+        console.log("mb.unicodechars: update required to version "+newLanguagePack.version);
 
         newLanguagePack.menuItems = [
             {"code": "\u2018", "name": "Left Single Quote", "offset":1, "enabled":true, "default":false},
             {"code": "\u2019", "name": "Apostrophe, Right Single Quote", "offset":1, "enabled":true, "default":true},
-            {"code": "\u2018\u2019", "name": "Left+Right Single Quotes", "offset":1, "enabled":true, "default":false},
+            {"code": "\u2018%s\u2019", "name": "Left+Right Single Quotes", "offset":1, "enabled":true, "default":false},
             {"code": "\u201C", "name": "Left Double Quotes", "offset":1, "enabled":true, "default":false},
             {"code": "\u201D", "name": "Right Double Quotes", "offset":1, "enabled":true, "default":false},
-            {"code": "\u201C\u201D", "name": "Left+Right Double Quotes", "offset":1, "enabled":true, "default":false},
-            {"code": "\u300C\u300D", "name": "Left+Right Corner Brackets", "offset":1, "enabled":true, "default":false},
-            {"code": "\u300E\u300F", "name": "Left+Right White Corner Brackets", "offset":1, "enabled":true, "default":false},
+            {"code": "\u201C%s\u201D", "name": "Left+Right Double Quotes", "offset":1, "enabled":true, "default":false},
+            {"code": "\u300C%s\u300D", "name": "Left+Right Corner Brackets", "offset":1, "enabled":true, "default":false},
+            {"code": "\u300E%s\u300F", "name": "Left+Right White Corner Brackets", "offset":1, "enabled":true, "default":false},
             {"code": "\u2026", "name": "Horizontal Ellipsis", "offset":1, "enabled":true, "default":false},
             {"code": "\u2010", "name": "Hyphen", "offset":1, "enabled":true, "default":false},
             {"code": "\u2013", "name": "En Dash", "offset":1, "enabled":true, "default":false},
